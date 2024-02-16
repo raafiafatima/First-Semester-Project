@@ -1,2 +1,1356 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+from customtkinter import *
+import pyodbc
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from CTkTable import *
+from PIL import Image
+
+# dark brown #6D5143
+# light brown #E8D1B3
+# frame colour #a68a7b
+
+# THEME AND FONT
+set_default_color_theme("coffee.json")
+set_appearance_mode("Dark")
+font1 = ("Century Gothic", 16)
+font2 = ('Century Gothic', 16, "bold")
+font3 = ("Century Gothic", 25, "bold")
+font4 = ('Century Gothic', 18, "bold")
+
+# pyodbc connection
+con = pyodbc.connect((r'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};'
+                      r'DBQ=D:\DBMS3.accdb;'))
+
+# Completed Orders
+def order2():
+    win7 = CTk()
+    win7.geometry("800x500")
+    win7.title("Restaurant Management System")
+    win7.resizable(False, False)
+    cursor7 = con.cursor()
+    cursor7.execute("SELECT Order_ID,Order_Date,Total_Bill FROM Orders WHERE 1110<Order_ID<1120")
+    row = cursor7.fetchall()
+
+    frame10 = CTkLabel(win7, text="ORDERS", font=font2, width=800, height=25, fg_color="#a68a7b")
+    frame10.place(x=0, y=0)
+
+    def toggle():
+        frame7 = CTkFrame(win7, width=150, height=500)
+        frame7.place(x=0, y=0)
+
+        sales = CTkButton(frame7, text="SALES", font=font2, width=120, command=lambda: [win7.destroy(), sale()])
+        sales.place(x=13, y=40)
+
+        menus = CTkButton(frame7, text="MENU", font=font2, width=120, command=lambda: [win7.destroy(), menu()])
+        menus.place(x=13, y=80)
+
+        emp = CTkButton(frame7, text="EMPLOYEE", font=font2, width=120, command=lambda: [win7.destroy(), employee()])
+        emp.place(x=13, y=120)
+
+        order = CTkButton(frame7, text="ORDERS", font=font2, width=120, hover_color="#5A3E32")
+        order.place(x=13, y=160)
+
+        current_orders = CTkButton(frame7, text="CURRENT", font=font2, width=120,
+                                   command=lambda: [win7.destroy(), orders()])
+        current_orders.place(x=13, y=200)
+
+        complete_orders = CTkButton(frame7, text="COMPLETED", font=font2, width=120,
+                                    command=lambda: [win7.destroy(), order2()])
+        complete_orders.place(x=13, y=240)
+
+        home = CTkButton(frame7, text="HOME", font=font2, width=120, command=lambda: [win7.destroy(), admin()])
+        home.place(x=13, y=280)
+
+        logout = CTkButton(frame7, text="LOG OUT", font=font2, width=120, command=lambda: [win7.destroy(), login()])
+        logout.place(x=13, y=400)
+
+        def toggle_delete():
+            frame7.destroy()
+
+        close_menu = CTkButton(frame7, text=" X ", width=20, corner_radius=1, height=1, command=toggle_delete,
+                               fg_color="#725B4E")
+        close_menu.place(x=0, y=3)
+
+    toggle_icon = CTkButton(frame10, text="☰", bg_color="#a68a7b", fg_color="#a68a7b", width=10, corner_radius=1,
+                            height=0, command=toggle)
+    toggle_icon.place(x=6, y=1)
+
+    table = CTkTable(win7, row=16, column=3, values=row, anchor="w")
+    table.pack(expand=False, fill="both")
+    table.place(x=190, y=30)
+    value1 = [['ID'], ['DATE'], ['BILL']]
+    table.add_row(value1, 0)
+    win7.mainloop()
+
+
+# Sixth Window (Employees)
+def employee():
+    win6 = CTk()
+    win6.title("Restaurant Management System")
+    win6.geometry("800x580")
+    win6.resizable(False, False)
+
+    frame9 = CTkFrame(win6, width=200, height=580)
+    frame9.place(x=0, y=0)
+    frame10 = CTkLabel(win6, text="EMPLOYEE", font=font2, width=800, height=25, fg_color="#a68a7b")
+    frame10.place(x=0, y=0)
+
+    # Toggle Menu
+    def toggle():
+        frame7 = CTkFrame(win6, width=150, height=500)
+        frame7.place(x=0, y=0)
+
+        sales = CTkButton(frame7, text="SALES", font=font2, width=120, command=lambda : [win6.destroy(), sale()])
+        sales.place(x=13, y=40)
+
+        menus = CTkButton(frame7, text="MENU", font=font2, width=120, command=lambda : [win6.destroy(), menu()])
+        menus.place(x=13, y=80)
+
+        emp = CTkButton(frame7, text="EMPLOYEE", font=font2, width=120, command=lambda : [win6.destroy(), employee()])
+        emp.place(x=13, y=120)
+
+        order = CTkButton(frame7, text="ORDERS", font=font2, width=120, command=lambda : [win6.destroy(), orders()])
+        order.place(x=13, y=160)
+
+        home = CTkButton(frame7, text="HOME", font=font2, width=120, command=lambda: [win6.destroy(), admin()])
+        home.place(x=13, y=200)
+
+        logout = CTkButton(win6, text="LOG OUT", font=font2, width=130, command=lambda : [win6.destroy(), login()])
+        logout.place(in_=frame7, x=13, y=400)
+
+        def toggle_delete():
+            frame7.destroy()
+
+        close_menu = CTkButton(frame7, text=" X ", width=20, corner_radius=1, height=1, command=toggle_delete,
+                               fg_color="#725B4E")
+        close_menu.place(x=0, y=3)
+
+    toggle_icon = CTkButton(frame10, text="☰", bg_color="#a68a7b", fg_color="#a68a7b", width=10, corner_radius=1,
+                            height=0, command=toggle)
+    toggle_icon.place(x=6, y=1)
+    cursor7 = con.cursor()
+    cursor7.execute("SELECT Emp_ID,Emp_Name,Address,Salary FROM Employees")
+    row = cursor7.fetchall()
+
+    table = CTkTable(win6, row=18, column=4, values=row, anchor="w")
+    table.pack(expand=False, fill="none")
+    table.place(x=220, y=40)
+    value1 = [['ID'], ['NAME'], ['ADDRESS'], ['SALARY']]
+    table.add_row(value1, 0)
+
+    def delete_record():
+        val = int(id_entry.get())
+        if val == 0:
+            error_label = CTkLabel(frame9,
+                                   text="*Enter valid row",
+                                   font=('Century Gothic', 10, "bold"),
+                                   text_color="dark red", bg_color="#725B4E")
+            error_label.place(x=15, y=120)
+        else:
+            table.delete_row(val)
+
+    CTkFrame(frame9, width=180, height=2, border_color="black", fg_color="#a68a7b").place(x=7, y=260)
+    CTkLabel(frame9, text="ROW NUMBER", font=font2, width=250, height=30, anchor="w").place(x=40, y=200)
+
+    id_entry = CTkEntry(frame9, width=235, border_width=0, font=font1, fg_color="#725B4E", text_color="#E8D1B3")
+    id_entry.place(x=0, y=230)
+
+    id_delete = CTkButton(frame9, text="DELETE", width=150, height=10, command=delete_record)
+    id_delete.place(x=20, y=300)
+
+    cursor7.commit()
+
+    win6.mainloop()
+
+
+# Fifth Window (Sales)
+def sale():
+    win5 = CTk()
+    win5.title("Restaurant Management System")
+    win5.geometry("1100x578")
+    win5.resizable(False, False)
+
+    frame9 = CTkLabel(win5, text="SALES                                 ", font=font2, width=1200, height=25,
+                      fg_color="#a68a7b")
+    frame9.place(x=-5, y=0)
+    frame9.pack_propagate(False)
+
+    # Toggle Menu
+    def toggle():
+        frame10 = CTkFrame(win5, width=150, height=578)
+        frame10.place(x=0, y=0)
+
+        menus = CTkButton(frame10, text="MENU", font=font2, width=120, command=lambda : [win5.destroy(), menu()])
+        menus.place(x=13, y=40)
+
+        emp = CTkButton(frame10, text="EMPLOYEE", font=font2, width=120, command=lambda : [win5.destroy(), employee()])
+        emp.place(x=13, y=80)
+
+        order = CTkButton(frame10, text="ORDERS", font=font2, width=120, command=lambda : [win5.destroy(), orders()])
+        order.place(x=13, y=120)
+
+        home = CTkButton(frame10, text="HOME", font=font2, width=120, command=lambda: [win5.destroy(), admin()])
+        home.place(x=13, y=160)
+
+        logout = CTkButton(win5, text="LOG OUT", font=font2, width=120, command=lambda : [win5.destroy(), login()])
+        logout.place(in_=frame10, x=13, y=500)
+
+        def toggle_delete():
+            frame10.destroy()
+
+        close_menu = CTkButton(frame10, text=" X ", width=20, corner_radius=1, height=1, command=toggle_delete,
+                               fg_color="#725B4E")
+        close_menu.place(x=0, y=3)
+
+    toggle_icon = CTkButton(frame9, text="☰", bg_color="#a68a7b", fg_color="#a68a7b", width=10, corner_radius=1,
+                            height=0, command=toggle)
+    toggle_icon.place(x=6, y=1)
+
+    # Legends
+    cursor4 = con.cursor()
+    cursor4.execute("Select * From Orders")
+
+    column_names = [columns[0] for columns in cursor4.description]
+    column_names.remove("Order_ID")
+    column_names.remove("Order_Date")
+    column_names.remove("Order_Status")
+    column_names.remove("Total_Bill")
+
+    legends = column_names
+
+    # Sales Buttons
+    jan = CTkButton(win5, text="JAN", font=font2, width=30, height=25)
+    feb = CTkButton(win5, text="FEB", font=font2, width=30, height=25)
+    mar = CTkButton(win5, text="MAR", font=font2, width=30, height=25)
+    apr = CTkButton(win5, text="APR", font=font2, width=30, height=25)
+    may = CTkButton(win5, text="MAY", font=font2, width=30, height=25)
+    jun = CTkButton(win5, text="JUN", font=font2, width=30, height=25)
+    jul = CTkButton(win5, text="JUL", font=font2, width=30, height=25)
+    aug = CTkButton(win5, text="AUG", font=font2, width=30, height=25)
+    sep = CTkButton(win5, text="SEP", font=font2, width=30, height=25)
+    octo = CTkButton(win5, text="OCT", font=font2, width=30, height=25)
+    nov = CTkButton(win5, text="NOV", font=font2, width=30, height=25)
+    dec = CTkButton(win5, text="DEC", font=font2, width=30, height=25)
+
+    jan.place(x=80, y=30)
+    feb.place(x=160, y=30)
+    mar.place(x=240, y=30)
+    apr.place(x=320, y=30)
+    may.place(x=400, y=30)
+    jun.place(x=480, y=30)
+    jul.place(x=560, y=30)
+    aug.place(x=640, y=30)
+    sep.place(x=720, y=30)
+    octo.place(x=800, y=30)
+    nov.place(x=880, y=30)
+    dec.place(x=960, y=30)
+
+    col=['#884839','#C38154','#FFC265','#F9E0BB']
+
+    # Pie Chart For January Sales
+    def january():
+        cursor5 = con.cursor()
+        cursor5.execute(
+            "SELECT SUM(Mixed_Greens_Salad), SUM(Cheesy_Garlic_Bread), SUM(Creamy_Tomato_Soup), SUM(Chicken_Nuggets), SUM(Grilled_Salmon),"
+            " SUM(Chicken_Alfredo_Pasta), SUM(Chicken_Chowmein), SUM(Mac_n_Cheese), SUM(Chocolate_Lava_Cake), SUM(Classic_Cheesecake),"
+            " SUM(Coffee_Walnut_Cake), SUM(Mint_Lemonade), SUM(Fruit_Smoothie), SUM(Iced_Coffee), SUM(Water) FROM Jan_Sales")
+
+        jan_sales = []
+        jan_slices = jan_sales
+
+        for rows in cursor5.fetchall():
+            for i in rows:
+                i = int(i)
+                jan_sales.append(i)
+
+        cursor6 = con.cursor()
+        cursor6.execute("SELECT SUM(Total_Bill) From Jan_Sales")
+        rev1 = cursor6.fetchone()
+        total_revenue = int(list(rev1)[0])
+        print(total_revenue)
+
+        # Creating MATPLOTLIB Figure and Axis and Plotting the Pie Chart
+        frame12 = CTkFrame(win5, height=512, width=751, fg_color="#a68a7b")
+        frame12.place(x=4, y=59)
+
+        figure1, axes = plt.subplots()
+        figure1.set_size_inches(11, 5)
+
+        
+
+        axes.pie(jan_slices, labels=legends, shadow=False, autopct="%1.1f%%", colors=col, wedgeprops = {"linewidth": 1, "edgecolor": "white"},pctdistance=0.8)
+
+        figure1.subplots_adjust(left=0, right=1, bottom=0, top=1, wspace=0, hspace=0)
+
+        # Embedding Into Tkinter Window
+        canvas = FigureCanvasTkAgg(figure1, master=win5)
+        canvas.draw()
+        canvas.get_tk_widget().place(x=20, y=200)
+
+        # Details Of Sales
+        frame13 = CTkLabel(win5, width=330, height=500, fg_color="#a68a7b", corner_radius=10, text_color="#6D5143",
+                           anchor="w", font=font4)
+        frame13.place(x=762, y=65)
+
+        deets = ""
+
+        for x, y in zip(column_names, jan_sales):
+            deets = deets + f"{x} : {y}\n"
+
+        details = (f"SALES FOR THE MONTH OF JANUARY\n\n"
+                   f"Total_Orders = {len(jan_sales)}\n\n"
+                   f"NUMBER OF SALES:\n"
+                   f"{deets}"
+                   f"\nTotal Income = ${total_revenue}")
+
+        frame13.configure(text=details)
+
+    jan.configure(command=january)
+
+    # Pie Chart For February
+    def february():
+        cursor5 = con.cursor()
+        cursor5.execute(
+            "SELECT SUM(Mixed_Greens_Salad), SUM(Cheesy_Garlic_Bread), SUM(Creamy_Tomato_Soup), SUM(Chicken_Nuggets), SUM(Grilled_Salmon),"
+            " SUM(Chicken_Alfredo_Pasta), SUM(Chicken_Chowmein), SUM(Mac_n_Cheese), SUM(Chocolate_Lava_Cake), SUM(Classic_Cheesecake),"
+            " SUM(Coffee_Walnut_Cake), SUM(Mint_Lemonade), SUM(Fruit_Smoothie), SUM(Iced_Coffee), SUM(Water) FROM Feb_Sales")
+
+        feb_sales = []
+
+        for rows in cursor5.fetchall():
+            for i in rows:
+                i = int(i)
+                feb_sales.append(i)
+
+        feb_slices = feb_sales
+
+        cursor6 = con.cursor()
+        cursor6.execute("SELECT SUM(Total_Bill) From Feb_Sales")
+        rev1 = cursor6.fetchone()
+        total_revenue = int(list(rev1)[0])
+        print(total_revenue)
+
+        # Creating MATPLOTLIB Figure and Axis and Plotting the Pie Chart
+        frame12 = CTkFrame(win5, height=512, width=751, fg_color="#a68a7b")
+        frame12.place(x=4, y=59)
+
+        figure1, axes = plt.subplots()
+        figure1.set_size_inches(11, 5)
+
+        axes.pie(feb_slices, labels=legends, shadow=False, autopct="%1.1f%%", colors=col, wedgeprops = {"linewidth": 1, "edgecolor": "white"},pctdistance=0.8)
+
+        figure1.subplots_adjust(left=0, right=1, bottom=0, top=1, wspace=0, hspace=0)
+
+        # Embedding Into Tkinter Window
+        canvas = FigureCanvasTkAgg(figure1, master=win5)
+        canvas.draw()
+        canvas.get_tk_widget().place(x=20, y=200)
+
+        # Details Of Sales
+        frame13 = CTkLabel(win5, width=330, height=500, fg_color="#a68a7b", corner_radius=10, text_color="#6D5143",
+                           anchor="w", font=font4)
+        frame13.place(x=762, y=65)
+
+        deets = ""
+
+        for x, y in zip(column_names, feb_sales):
+            deets = deets + f"{x} : {y}\n"
+
+        details = (f"SALES FOR THE MONTH OF FEBRUARY\n\n"
+                   f"Total_Orders = {len(feb_sales)}\n\n"
+                   f"NUMBER OF SALES:\n"
+                   f"{deets}"
+                   f"\nTotal Income = ${total_revenue}")
+
+        frame13.configure(text=details)
+
+    feb.configure(command=february)
+
+    # Pie Chart For March
+    def march():
+        cursor5 = con.cursor()
+        cursor5.execute(
+            "SELECT SUM(Mixed_Greens_Salad), SUM(Cheesy_Garlic_Bread), SUM(Creamy_Tomato_Soup), SUM(Chicken_Nuggets), SUM(Grilled_Salmon),"
+            " SUM(Chicken_Alfredo_Pasta), SUM(Chicken_Chowmein), SUM(Mac_n_Cheese), SUM(Chocolate_Lava_Cake), SUM(Classic_Cheesecake),"
+            " SUM(Coffee_Walnut_Cake), SUM(Mint_Lemonade), SUM(Fruit_Smoothie), SUM(Iced_Coffee), SUM(Water) FROM Mar_Sales")
+
+        mar_sales = []
+
+        for rows in cursor5.fetchall():
+            for i in rows:
+                i = int(i)
+                mar_sales.append(i)
+
+        mar_slices = mar_sales
+
+        cursor6 = con.cursor()
+        cursor6.execute("SELECT SUM(Total_Bill) From Mar_Sales")
+        rev1 = cursor6.fetchone()
+        total_revenue = int(list(rev1)[0])
+        print(total_revenue)
+
+        # Creating MATPLOTLIB Figure and Axis and Plotting the Pie Chart
+        frame12 = CTkFrame(win5, height=512, width=751, fg_color="#a68a7b")
+        frame12.place(x=4, y=59)
+
+        figure1, axes = plt.subplots()
+        figure1.set_size_inches(11, 5)
+
+        axes.pie(mar_slices, labels=legends, shadow=False, autopct="%1.1f%%", colors=col, wedgeprops = {"linewidth": 1, "edgecolor": "white"},pctdistance=0.8)
+
+        figure1.subplots_adjust(left=0, right=1, bottom=0, top=1, wspace=0, hspace=0)
+
+        # Embedding Into Tkinter Window
+        canvas = FigureCanvasTkAgg(figure1, master=win5)
+        canvas.draw()
+        canvas.get_tk_widget().place(x=20, y=200)
+
+        # Details Of Sales
+        frame13 = CTkLabel(win5, width=330, height=500, fg_color="#a68a7b", corner_radius=10, text_color="#6D5143",
+                           anchor="w", font=font4)
+        frame13.place(x=762, y=65)
+
+        deets = ""
+
+        for x, y in zip(column_names, mar_sales):
+            deets = deets + f"{x} : {y}\n"
+
+        details = (f"SALES FOR THE MONTH OF MARCH\n\n"
+                   f"Total_Orders = {len(mar_sales)}\n\n"
+                   f"NUMBER OF SALES:\n"
+                   f"{deets}"
+                   f"\nTotal Income = ${total_revenue}")
+
+        frame13.configure(text=details)
+
+    mar.configure(command=march)
+
+    # Pie Chart For April
+    def april():
+        cursor5 = con.cursor()
+        cursor5.execute(
+            "SELECT SUM(Mixed_Greens_Salad), SUM(Cheesy_Garlic_Bread), SUM(Creamy_Tomato_Soup), SUM(Chicken_Nuggets), SUM(Grilled_Salmon),"
+            " SUM(Chicken_Alfredo_Pasta), SUM(Chicken_Chowmein), SUM(Mac_n_Cheese), SUM(Chocolate_Lava_Cake), SUM(Classic_Cheesecake),"
+            " SUM(Coffee_Walnut_Cake), SUM(Mint_Lemonade), SUM(Fruit_Smoothie), SUM(Iced_Coffee), SUM(Water) FROM Apr_Sales")
+
+        apr_sales = []
+
+        for rows in cursor5.fetchall():
+            for i in rows:
+                i = int(i)
+                apr_sales.append(i)
+
+        apr_slices = apr_sales
+
+        cursor6 = con.cursor()
+        cursor6.execute("SELECT SUM(Total_Bill) From Apr_Sales")
+        rev1 = cursor6.fetchone()
+        total_revenue = int(list(rev1)[0])
+        print(total_revenue)
+
+        # Creating MATPLOTLIB Figure and Axis and Plotting the Pie Chart
+        frame12 = CTkFrame(win5, height=512, width=751, fg_color="#a68a7b")
+        frame12.place(x=4, y=59)
+
+        figure1, axes = plt.subplots()
+        figure1.set_size_inches(11, 5)
+
+        axes.pie(apr_slices, labels=legends, shadow=False, autopct="%1.1f%%", colors=col, wedgeprops = {"linewidth": 1, "edgecolor": "white"},pctdistance=0.8)
+
+        figure1.subplots_adjust(left=0, right=1, bottom=0, top=1, wspace=0, hspace=0)
+
+        # Embedding Into Tkinter Window
+        canvas = FigureCanvasTkAgg(figure1, master=win5)
+        canvas.draw()
+        canvas.get_tk_widget().place(x=20, y=200)
+
+        # Details Of Sales
+        frame13 = CTkLabel(win5, width=330, height=500, fg_color="#a68a7b", corner_radius=10, text_color="#6D5143",
+                           anchor="w", font=font4)
+        frame13.place(x=762, y=65)
+
+        deets = ""
+
+        for x, y in zip(column_names, apr_sales):
+            deets = deets + f"{x} : {y}\n"
+
+        details = (f"SALES FOR THE MONTH OF APRIL\n\n"
+                   f"Total_Orders = {len(apr_sales)}\n\n"
+                   f"NUMBER OF SALES:\n"
+                   f"{deets}"
+                   f"\nTotal Income = ${total_revenue}")
+
+        frame13.configure(text=details)
+
+    apr.configure(command=april)
+
+    # Pie Chart For May
+    def May():
+        cursor5 = con.cursor()
+        cursor5.execute(
+            "SELECT SUM(Mixed_Greens_Salad), SUM(Cheesy_Garlic_Bread), SUM(Creamy_Tomato_Soup), SUM(Chicken_Nuggets), SUM(Grilled_Salmon),"
+            " SUM(Chicken_Alfredo_Pasta), SUM(Chicken_Chowmein), SUM(Mac_n_Cheese), SUM(Chocolate_Lava_Cake), SUM(Classic_Cheesecake),"
+            " SUM(Coffee_Walnut_Cake), SUM(Mint_Lemonade), SUM(Fruit_Smoothie), SUM(Iced_Coffee), SUM(Water) FROM May_Sales")
+
+        may_sales = []
+
+        for rows in cursor5.fetchall():
+            for i in rows:
+                i = int(i)
+                may_sales.append(i)
+
+        may_slices = may_sales
+
+        cursor6 = con.cursor()
+        cursor6.execute("SELECT SUM(Total_Bill) From May_Sales")
+        rev1 = cursor6.fetchone()
+        total_revenue = int(list(rev1)[0])
+        print(total_revenue)
+
+        # Creating MATPLOTLIB Figure and Axis and Plotting the Pie Chart
+        frame12 = CTkFrame(win5, height=512, width=751, fg_color="#a68a7b")
+        frame12.place(x=4, y=59)
+
+        figure1, axes = plt.subplots()
+        figure1.set_size_inches(11, 5)
+
+        axes.pie(may_slices, labels=legends, shadow=False, autopct="%1.1f%%", colors=col, wedgeprops = {"linewidth": 1, "edgecolor": "white"},pctdistance=0.8)
+
+        figure1.subplots_adjust(left=0, right=1, bottom=0, top=1, wspace=0, hspace=0)
+
+        # Embedding Into Tkinter Window
+        canvas = FigureCanvasTkAgg(figure1, master=win5)
+        canvas.draw()
+        canvas.get_tk_widget().place(x=20, y=200)
+
+        # Details Of Sales
+        frame13 = CTkLabel(win5, width=330, height=500, fg_color="#a68a7b", corner_radius=10, text_color="#6D5143",
+                           anchor="w", font=font4)
+        frame13.place(x=762, y=65)
+
+        deets = ""
+
+        for x, y in zip(column_names, may_sales):
+            deets = deets + f"{x} : {y}\n"
+
+        details = (f"SALES FOR THE MONTH OF MAY\n\n"
+                   f"Total_Orders = {len(may_sales)}\n\n"
+                   f"NUMBER OF SALES:\n"
+                   f"{deets}"
+                   f"\nTotal Income = ${total_revenue}")
+
+        frame13.configure(text=details)
+
+    may.configure(command=May)
+
+    # Pie Chart For June
+    def june():
+        cursor5 = con.cursor()
+        cursor5.execute(
+            "SELECT SUM(Mixed_Greens_Salad), SUM(Cheesy_Garlic_Bread), SUM(Creamy_Tomato_Soup), SUM(Chicken_Nuggets), SUM(Grilled_Salmon),"
+            " SUM(Chicken_Alfredo_Pasta), SUM(Chicken_Chowmein), SUM(Mac_n_Cheese), SUM(Chocolate_Lava_Cake), SUM(Classic_Cheesecake),"
+            " SUM(Coffee_Walnut_Cake), SUM(Mint_Lemonade), SUM(Fruit_Smoothie), SUM(Iced_Coffee), SUM(Water) FROM Jun_Sales")
+
+        jun_sales = []
+
+        for rows in cursor5.fetchall():
+            for i in rows:
+                i = int(i)
+                jun_sales.append(i)
+
+        jun_slices = jun_sales
+
+        cursor6 = con.cursor()
+        cursor6.execute("SELECT SUM(Total_Bill) From Jun_Sales")
+        rev1 = cursor6.fetchone()
+        total_revenue = int(list(rev1)[0])
+        print(total_revenue)
+
+        # Creating MATPLOTLIB Figure and Axis and Plotting the Pie Chart
+
+        frame12 = CTkFrame(win5, height=512, width=751, fg_color="#a68a7b")
+        frame12.place(x=4, y=59)
+
+        figure1, axes = plt.subplots()
+        figure1.set_size_inches(11, 5)
+
+        axes.pie(jun_slices, labels=legends, shadow=False, autopct="%1.1f%%", colors=col, wedgeprops = {"linewidth": 1, "edgecolor": "white"},pctdistance=0.8)
+
+        figure1.subplots_adjust(left=0, right=1, bottom=0, top=1, wspace=0, hspace=0)
+
+        # Embedding Into Tkinter Window
+        canvas = FigureCanvasTkAgg(figure1, master=win5)
+        canvas.draw()
+        canvas.get_tk_widget().place(x=20, y=200)
+
+        # Details Of Sales
+        frame13 = CTkLabel(win5, width=330, height=500, fg_color="#a68a7b", corner_radius=10, text_color="#6D5143",
+                           anchor="w", font=font4)
+        frame13.place(x=762, y=65)
+
+        deets = ""
+
+        for x, y in zip(column_names, jun_sales):
+            deets = deets + f"{x} : {y}\n"
+
+        details = (f"SALES FOR THE MONTH OF JUNE\n\n"
+                   f"Total_Orders = {len(jun_sales)}\n\n"
+                   f"NUMBER OF SALES:\n"
+                   f"{deets}"
+                   f"\nTotal Income = ${total_revenue}")
+
+        frame13.configure(text=details)
+        print("opt")
+
+    jun.configure(command=june)
+
+    # Pie Chart For July
+    def july():
+        cursor5 = con.cursor()
+        cursor5.execute(
+            "SELECT SUM(Mixed_Greens_Salad), SUM(Cheesy_Garlic_Bread), SUM(Creamy_Tomato_Soup), SUM(Chicken_Nuggets), SUM(Grilled_Salmon),"
+            " SUM(Chicken_Alfredo_Pasta), SUM(Chicken_Chowmein), SUM(Mac_n_Cheese), SUM(Chocolate_Lava_Cake), SUM(Classic_Cheesecake),"
+            " SUM(Coffee_Walnut_Cake), SUM(Mint_Lemonade), SUM(Fruit_Smoothie), SUM(Iced_Coffee), SUM(Water) FROM Jul_Sales")
+
+        jul_sales = []
+
+        for rows in cursor5.fetchall():
+            for i in rows:
+                i = int(i)
+                jul_sales.append(i)
+
+        jul_slices = jul_sales
+
+        cursor6 = con.cursor()
+        cursor6.execute("SELECT SUM(Total_Bill) From Jul_Sales")
+        rev1 = cursor6.fetchone()
+        total_revenue = int(list(rev1)[0])
+        print(total_revenue)
+
+        # Creating MATPLOTLIB Figure and Axis and Plotting the Pie Chart
+        frame12 = CTkFrame(win5, height=512, width=751, fg_color="#a68a7b")
+        frame12.place(x=4, y=59)
+
+        figure1, axes = plt.subplots()
+        figure1.set_size_inches(11, 5)
+
+        axes.pie(jul_slices, labels=legends, shadow=False, autopct="%1.1f%%", colors=col, wedgeprops = {"linewidth": 1, "edgecolor": "white"},pctdistance=0.8)
+
+        figure1.subplots_adjust(left=0, right=1, bottom=0, top=1, wspace=0, hspace=0)
+
+        # Embedding Into Tkinter Window
+        canvas = FigureCanvasTkAgg(figure1, master=win5)
+        canvas.draw()
+        canvas.get_tk_widget().place(x=20, y=200)
+
+        # Details Of Sales
+        frame13 = CTkLabel(win5, width=330, height=500, fg_color="#a68a7b", corner_radius=10, text_color="#6D5143",
+                           anchor="w", font=font4)
+        frame13.place(x=762, y=65)
+
+        deets = ""
+
+        for x, y in zip(column_names, jul_sales):
+            deets = deets + f"{x} : {y}\n"
+
+        details = (f"SALES FOR THE MONTH OF JULY\n\n"
+                   f"Total_Orders = {len(jul_sales)}\n\n"
+                   f"NUMBER OF SALES:\n"
+                   f"{deets}"
+                   f"\nTotal Income = ${total_revenue}")
+
+        frame13.configure(text=details)
+
+    jul.configure(command=july)
+
+    # Pie Chart For August
+    def august():
+        cursor5 = con.cursor()
+        cursor5.execute(
+            "SELECT SUM(Mixed_Greens_Salad), SUM(Cheesy_Garlic_Bread), SUM(Creamy_Tomato_Soup), SUM(Chicken_Nuggets), SUM(Grilled_Salmon),"
+            " SUM(Chicken_Alfredo_Pasta), SUM(Chicken_Chowmein), SUM(Mac_n_Cheese), SUM(Chocolate_Lava_Cake), SUM(Classic_Cheesecake),"
+            " SUM(Coffee_Walnut_Cake), SUM(Mint_Lemonade), SUM(Fruit_Smoothie), SUM(Iced_Coffee), SUM(Water) FROM Aug_Sales")
+
+        aug_sales = []
+
+        for rows in cursor5.fetchall():
+            for i in rows:
+                i = int(i)
+                aug_sales.append(i)
+
+        aug_slices = aug_sales
+
+        cursor6 = con.cursor()
+        cursor6.execute("SELECT SUM(Total_Bill) From Aug_Sales")
+        rev1 = cursor6.fetchone()
+        total_revenue = int(list(rev1)[0])
+        print(total_revenue)
+
+        # Creating MATPLOTLIB Figure and Axis and Plotting the Pie Chart
+        frame12 = CTkFrame(win5, height=512, width=751, fg_color="#a68a7b")
+        frame12.place(x=4, y=59)
+
+        figure1, axes = plt.subplots()
+        figure1.set_size_inches(11, 5)
+
+        axes.pie(aug_slices, labels=legends, shadow=False, autopct="%1.1f%%", colors=col, wedgeprops = {"linewidth": 1, "edgecolor": "white"},pctdistance=0.8)
+
+        figure1.subplots_adjust(left=0, right=1, bottom=0, top=1, wspace=0, hspace=0)
+
+        # Embedding Into Tkinter Window
+        canvas = FigureCanvasTkAgg(figure1, master=win5)
+        canvas.draw()
+        canvas.get_tk_widget().place(x=20, y=200)
+
+        # Details Of Sales
+        frame13 = CTkLabel(win5, width=330, height=500, fg_color="#a68a7b", corner_radius=10, text_color="#6D5143",
+                           anchor="w", font=font4)
+        frame13.place(x=762, y=65)
+
+        deets = ""
+
+        for x, y in zip(column_names, aug_sales):
+            deets = deets + f"{x} : {y}\n"
+
+        details = (f"SALES FOR THE MONTH OF AUGUST\n\n"
+                   f"Total_Orders = {len(aug_sales)}\n\n"
+                   f"NUMBER OF SALES:\n"
+                   f"{deets}"
+                   f"\nTotal Income = ${total_revenue}")
+
+        frame13.configure(text=details)
+
+    aug.configure(command=august)
+
+    # Pie Chart For September
+    def september():
+        cursor5 = con.cursor()
+        cursor5.execute(
+            "SELECT SUM(Mixed_Greens_Salad), SUM(Cheesy_Garlic_Bread), SUM(Creamy_Tomato_Soup), SUM(Chicken_Nuggets), SUM(Grilled_Salmon),"
+            " SUM(Chicken_Alfredo_Pasta), SUM(Chicken_Chowmein), SUM(Mac_n_Cheese), SUM(Chocolate_Lava_Cake), SUM(Classic_Cheesecake),"
+            " SUM(Coffee_Walnut_Cake), SUM(Mint_Lemonade), SUM(Fruit_Smoothie), SUM(Iced_Coffee), SUM(Water) FROM Sep_Sales")
+
+        sep_sales = []
+
+        for rows in cursor5.fetchall():
+            for i in rows:
+                i = int(i)
+                sep_sales.append(i)
+
+        sep_slices = sep_sales
+
+        cursor6 = con.cursor()
+        cursor6.execute("SELECT SUM(Total_Bill) From Sep_Sales")
+        rev1 = cursor6.fetchone()
+        total_revenue = int(list(rev1)[0])
+        print(total_revenue)
+
+        # Creating MATPLOTLIB Figure and Axis and Plotting the Pie Chart
+        frame12 = CTkFrame(win5, height=512, width=751, fg_color="#a68a7b")
+        frame12.place(x=4, y=59)
+
+        figure1, axes = plt.subplots()
+        figure1.set_size_inches(11, 5)
+
+        axes.pie(sep_slices, labels=legends, shadow=False, autopct="%1.1f%%", colors=col, wedgeprops = {"linewidth": 1, "edgecolor": "white"},pctdistance=0.8)
+
+        figure1.subplots_adjust(left=0, right=1, bottom=0, top=1, wspace=0, hspace=0)
+
+        # Embedding Into Tkinter Window
+        canvas = FigureCanvasTkAgg(figure1, master=win5)
+        canvas.draw()
+        canvas.get_tk_widget().place(x=20, y=200)
+
+        # Details Of Sales
+        frame13 = CTkLabel(win5, width=320, height=500, fg_color="#a68a7b", corner_radius=10, text_color="#6D5143",
+                           anchor="w", font=font4)
+        frame13.place(x=762, y=65)
+
+        deets = ""
+
+        for x, y in zip(column_names, sep_sales):
+            deets = deets + f"{x} : {y}\n"
+
+        details = (f"SALES FOR THE MONTH OF SEPTEMBER\n\n"
+                   f"Total_Orders = {len(sep_sales)}\n\n"
+                   f"NUMBER OF SALES:\n"
+                   f"{deets}"
+                   f"\nTotal Income = ${total_revenue}")
+
+        frame13.configure(text=details)
+
+    sep.configure(command=september)
+
+    # Pie Chart For October
+    def october():
+        cursor5 = con.cursor()
+        cursor5.execute(
+            "SELECT SUM(Mixed_Greens_Salad), SUM(Cheesy_Garlic_Bread), SUM(Creamy_Tomato_Soup), SUM(Chicken_Nuggets), SUM(Grilled_Salmon),"
+            " SUM(Chicken_Alfredo_Pasta), SUM(Chicken_Chowmein), SUM(Mac_n_Cheese), SUM(Chocolate_Lava_Cake), SUM(Classic_Cheesecake),"
+            " SUM(Coffee_Walnut_Cake), SUM(Mint_Lemonade), SUM(Fruit_Smoothie), SUM(Iced_Coffee), SUM(Water) FROM Oct_Sales")
+
+        oct_sales = []
+
+        for rows in cursor5.fetchall():
+            for i in rows:
+                i = int(i)
+                oct_sales.append(i)
+
+        oct_slices = oct_sales
+
+        cursor6 = con.cursor()
+        cursor6.execute("SELECT SUM(Total_Bill) From Oct_Sales")
+        rev1 = cursor6.fetchone()
+        total_revenue = int(list(rev1)[0])
+        print(total_revenue)
+
+        # Creating MATPLOTLIB Figure and Axis and Plotting the Pie Chart
+        frame12 = CTkFrame(win5, height=512, width=751, fg_color="#a68a7b")
+        frame12.place(x=4, y=59)
+
+        figure1, axes = plt.subplots()
+        figure1.set_size_inches(11, 5)
+
+        axes.pie(oct_slices, labels=legends, shadow=False, autopct="%1.1f%%", colors=col, wedgeprops = {"linewidth": 1, "edgecolor": "white"},pctdistance=0.8)
+
+        figure1.subplots_adjust(left=0, right=1, bottom=0, top=1, wspace=0, hspace=0)
+
+        # Embedding Into Tkinter Window
+        canvas = FigureCanvasTkAgg(figure1, master=win5)
+        canvas.draw()
+        canvas.get_tk_widget().place(x=20, y=200)
+
+        # Details Of Sales
+        frame13 = CTkLabel(win5, width=330, height=500, fg_color="#a68a7b", corner_radius=10, text_color="#6D5143",
+                           anchor="w", font=font4)
+        frame13.place(x=762, y=65)
+
+        deets = ""
+
+        for x, y in zip(column_names, oct_sales):
+            deets = deets + f"{x} : {y}\n"
+
+        details = (f"SALES FOR THE MONTH OF OCTOBER\n\n"
+                   f"Total_Orders = {len(oct_sales)}\n\n"
+                   f"NUMBER OF SALES:\n"
+                   f"{deets}"
+                   f"\nTotal Income = ${total_revenue}")
+
+        frame13.configure(text=details)
+
+    octo.configure(command=october)
+
+    # Pie Chart For November
+    def november():
+        cursor5 = con.cursor()
+        cursor5.execute(
+            "SELECT SUM(Mixed_Greens_Salad), SUM(Cheesy_Garlic_Bread), SUM(Creamy_Tomato_Soup), SUM(Chicken_Nuggets), SUM(Grilled_Salmon),"
+            " SUM(Chicken_Alfredo_Pasta), SUM(Chicken_Chowmein), SUM(Mac_n_Cheese), SUM(Chocolate_Lava_Cake), SUM(Classic_Cheesecake),"
+            " SUM(Coffee_Walnut_Cake), SUM(Mint_Lemonade), SUM(Fruit_Smoothie), SUM(Iced_Coffee), SUM(Water) FROM Nov_Sales")
+
+        nov_sales = []
+
+        for rows in cursor5.fetchall():
+            for i in rows:
+                i = int(i)
+                nov_sales.append(i)
+
+        nov_slices = nov_sales
+
+        cursor6 = con.cursor()
+        cursor6.execute("SELECT SUM(Total_Bill) From Nov_Sales")
+        rev1 = cursor6.fetchone()
+        total_revenue = int(list(rev1)[0])
+        print(total_revenue)
+
+        # Creating MATPLOTLIB Figure and Axis and Plotting the Pie Chart
+        frame12 = CTkFrame(win5, height=512, width=751, fg_color="#a68a7b")
+        frame12.place(x=4, y=59)
+
+        figure1, axes = plt.subplots()
+        figure1.set_size_inches(11, 5)
+
+        axes.pie(nov_slices, labels=legends, shadow=False, autopct="%1.1f%%", colors=col, wedgeprops = {"linewidth": 1, "edgecolor": "white"},pctdistance=0.8)
+
+        figure1.subplots_adjust(left=0, right=1, bottom=0, top=1, wspace=0, hspace=0)
+
+        # Embedding Into Tkinter Window
+        canvas = FigureCanvasTkAgg(figure1, master=win5)
+        canvas.draw()
+        canvas.get_tk_widget().place(x=20, y=200)
+
+        # Details Of Sales
+        frame13 = CTkLabel(win5, width=320, height=500, fg_color="#a68a7b", corner_radius=10, text_color="#6D5143",
+                           anchor="w", font=font4)
+        frame13.place(x=762, y=65)
+
+        deets = ""
+
+        for x, y in zip(column_names, nov_sales):
+            deets = deets + f"{x} : {y}\n"
+
+        details = (f"SALES FOR THE MONTH OF NOVEMBER\n\n"
+                   f"Total_Orders = {len(nov_sales)}\n\n"
+                   f"NUMBER OF SALES:\n"
+                   f"{deets}"
+                   f"\nTotal Income = ${total_revenue}")
+
+        frame13.configure(text=details)
+        print("def")
+
+    nov.configure(command=november)
+
+    # Pie Chart For December
+    def december():
+        cursor5 = con.cursor()
+        cursor5.execute(
+            "SELECT SUM(Mixed_Greens_Salad), SUM(Cheesy_Garlic_Bread), SUM(Creamy_Tomato_Soup), SUM(Chicken_Nuggets), SUM(Grilled_Salmon),"
+            " SUM(Chicken_Alfredo_Pasta), SUM(Chicken_Chowmein), SUM(Mac_n_Cheese), SUM(Chocolate_Lava_Cake), SUM(Classic_Cheesecake),"
+            " SUM(Coffee_Walnut_Cake), SUM(Mint_Lemonade), SUM(Fruit_Smoothie), SUM(Iced_Coffee), SUM(Water) FROM Dec_Sales")
+
+        dec_sales = []
+
+        for rows in cursor5.fetchall():
+            for i in rows:
+                i = int(i)
+                dec_sales.append(i)
+
+        dec_slices = dec_sales
+
+        cursor6 = con.cursor()
+        cursor6.execute("SELECT SUM(Total_Bill) From Dec_Sales")
+        rev1 = cursor6.fetchone()
+        total_revenue = int(list(rev1)[0])
+        print(total_revenue)
+
+        # Creating MATPLOTLIB Figure and Axis and Plotting the Pie Chart
+        frame12 = CTkFrame(win5, height=512, width=751, fg_color="#a68a7b")
+        frame12.place(x=4, y=59)
+
+        figure1, axes = plt.subplots()
+        figure1.set_size_inches(11, 7.5)
+
+        axes.pie(dec_slices, labels=legends, shadow=False, autopct="%1.1f%%", colors=col, wedgeprops = {"linewidth": 1, "edgecolor": "white"},pctdistance=0.8)
+
+        figure1.subplots_adjust(left=0, right=1, bottom=0, top=1, wspace=0, hspace=0)
+
+        # Embedding Into Tkinter Window
+        canvas = FigureCanvasTkAgg(figure1, master=win5)
+        canvas.draw()
+        canvas.get_tk_widget().place(x=20, y=100)
+
+        # Details Of Sales
+        frame13 = CTkLabel(win5, width=330, height=510, fg_color="#a68a7b", corner_radius=10, text_color="#6D5143",
+                           anchor="w", font=font4)
+        frame13.place(x=762, y=69)
+
+        deets = ""
+
+        for x, y in zip(column_names, dec_sales):
+            deets = deets + f"{x} : {y}\n"
+
+        details = (f"SALES FOR THE MONTH OF DECEMBER\n\n"
+                   f"Total_Orders = {len(dec_sales)}\n\n"
+                   f"NUMBER OF SALES:\n"
+                   f"{deets}"
+                   f"\nTotal Income = ${total_revenue}")
+
+        frame13.configure(text=details)
+        print("abc")
+
+    dec.configure(command=december)
+
+    win5.mainloop()
+
+# Fourth Window (Orders)
+def orders():
+    win4 = CTk()
+    win4.title("Restaurant Management System")
+    win4.geometry("800x500")
+    win4.resizable(False, False)
+
+    frame6 = CTkLabel(win4, text="ORDERS", font=font2, width=900, height=25, fg_color="#a68a7b")
+    frame6.place(x=-5, y=0)
+    frame6.pack_propagate(False)
+
+    # Toggle Menu
+    def toggle():
+        frame7 = CTkFrame(win4, width=150, height=500)
+        frame7.place(x=0, y=0)
+
+        sales = CTkButton(frame7, text="SALES", font=font2, width=120, command=lambda : [win4.destroy(), sale()])
+        sales.place(x=13, y=40)
+
+        menus = CTkButton(frame7, text="MENU", font=font2, width=120, command=lambda : [win4.destroy(), menu()])
+        menus.place(x=13, y=80)
+
+        emp = CTkButton(frame7, text="EMPLOYEE", font=font2, width=120, command=lambda : [win4.destroy(), employee()])
+        emp.place(x=13, y=120)
+
+        order = CTkButton(frame7, text="ORDERS", font=font2, width=120, hover_color="#5A3E32")
+        order.place(x=13, y=160)
+
+        current_orders = CTkButton(frame7, text="CURRENT", font=font2, width=120, command=lambda : [win4.destroy(), orders()])
+        current_orders.place(x=13, y=200)
+
+        complete_orders = CTkButton(frame7, text="COMPLETED", font=font2, width=120, command=lambda : [win4.destroy(), order2()])
+        complete_orders.place(x=13, y=240)
+
+        home = CTkButton(frame7, text="HOME", font=font2, width=120, command=lambda: [win4.destroy(), admin()])
+        home.place(x=13, y=280)
+
+        logout = CTkButton(frame7, text="LOG OUT", font=font2, width=120, command=lambda: [win4.destroy(), login()])
+        logout.place(x=13, y=400)
+
+        # toggle_label = CTkLabel(frame7, text="", width=150, height=30, fg_color="#a68a7b")
+        # toggle_label.place(x=0, y=470)
+
+        def toggle_delete():
+            frame7.destroy()
+
+        close_menu = CTkButton(frame7, text=" X ", width=20, corner_radius=1, height=1, command=toggle_delete,
+                               fg_color="#725B4E")
+        close_menu.place(x=0, y=3)
+
+    toggle_icon = CTkButton(frame6, text="☰", bg_color="#a68a7b", fg_color="#a68a7b", width=10, corner_radius=1,
+                            height=0, command=toggle)
+    toggle_icon.place(x=6, y=1)
+
+    # Current Orders
+    frame8 = CTkFrame(win4, width=258, height=430, fg_color="transparent")
+    frame8.place(x=6, y=40)
+
+    order_heading = CTkLabel(win4, text_color="#E8D1B3", width=200, height=50, corner_radius=10, fg_color="#a68a7b",
+                             font=font2)
+    order_heading.place(in_=frame8, x=20, y=9)
+
+    order_content = CTkLabel(win4, text_color='white', width=200, height=290, corner_radius=10, fg_color="transparent",
+                             font=font1, anchor="nw", justify="left")
+    order_content.place(in_=frame8, x=45, y=75)
+
+    cursor2 = con.cursor()
+
+    cursor2.execute(f"SELECT * FROM Orders WHERE Order_Status='Pending'")
+
+    customers = cursor2.fetchall()
+
+    customer1 = list(customers[0])
+    customer2 = list(customers[1])
+    customer3 = list(customers[2])
+    customer4 = list(customers[3])
+    customer5 = list(customers[4])
+
+    pending_1 = CTkButton(win4, text_color="#E8D1B3", width=200, height=50, corner_radius=10, fg_color="#a68a7b",
+                          font=font2, text=f"Order # {customer1[0]}        Date: {customer1[1].strftime('%d/%m/%Y')}")
+    pending_1.place(x=400, y=70)
+
+    pending_2 = CTkButton(win4, text_color="#E8D1B3", width=200, height=50, corner_radius=10, fg_color="#a68a7b",
+                          font=font2, text=f"Order # {customer2[0]}        Date: {customer2[1].strftime('%d/%m/%Y')}")
+    pending_2.place(x=400, y=150)
+
+    pending_3 = CTkButton(win4, text_color="#E8D1B3", width=200, height=50, corner_radius=10, fg_color="#a68a7b",
+                          font=font2, text=f"Order # {customer3[0]}        Date: {customer3[1].strftime('%d/%m/%Y')}")
+    pending_3.place(x=400, y=230)
+
+    pending_4 = CTkButton(win4, text_color="#E8D1B3", width=200, height=50, corner_radius=10, fg_color="#a68a7b",
+                          font=font2, text=f"Order # {customer4[0]}        Date: {customer4[1].strftime('%d/%m/%Y')}")
+    pending_4.place(x=400, y=310)
+
+    pending_5 = CTkButton(win4, text_color="#E8D1B3", width=200, height=50, corner_radius=10, fg_color="#a68a7b",
+                          font=font2, text=f"Order # {customer5[0]}        Date: {customer5[1].strftime('%d/%m/%Y')}")
+    pending_5.place(x=400, y=390)
+
+    # Fetch the column names
+    column_names = [column[0] for column in cursor2.description]
+
+    # Fetch and display the data
+    def display_data(list_name):
+        data = ""
+        for col_name, value in zip(column_names, list_name):
+            if value != 0:
+                if col_name != "Total_Bill" and col_name != "Order_Status" and col_name != "Order_ID" and col_name != "Order_Date":
+                    z = f"{col_name} (x{value})"
+                    data = data + z + "\n"
+                elif col_name == "Order_ID" or col_name == "Order_Status" or col_name == "Order_Date":
+                    data = data
+                else:
+                    z = f"{col_name} : {value}"
+                    data = data + "\n" + z + "\n"
+            if col_name == "Order_Date":
+                date = value.strftime("%d/%m/%Y")
+                z = f"Order # {list_name[0]}        Date: {date}"
+                order_heading.configure(text=z)
+            order_content.configure(text=data)
+
+        print('\n')
+
+        Cancel_Order = CTkButton(win4, width=30, height=10, corner_radius=10, text_color="white", fg_color="#2B1700",
+                                 font=font2, text="CANCEL ORDER")
+
+        Cancel_Order.place(in_=frame8, x=77, y=420)
+
+        def cancel_order():
+            cursor3 = con.cursor()
+            cursor3.execute(f"DELETE FROM Orders2 WHERE Order_ID={list_name[0]}")
+            con.commit()
+
+        Cancel_Order.configure(command=cancel_order)
+
+    display_data(customer1)
+
+    def replace1():
+        display_data(customer1)
+
+    pending_1.configure(command=replace1)
+
+    def replace2():
+        display_data(customer2)
+
+    pending_2.configure(command=replace2)
+
+    def replace3():
+        display_data(customer3)
+
+    pending_3.configure(command=replace3)
+
+    def replace4():
+        display_data(customer4)
+
+    pending_4.configure(command=replace4)
+
+    def replace5():
+        display_data(customer5)
+
+    pending_5.configure(command=replace5)
+
+    win4.mainloop()
+
+
+# Third Window (Menu and Add and Delete From Menu)
+def menu():
+    win3 = CTk()
+    win3.title("Restaurant Management System")
+    win3.geometry("800x520")
+    win3.resizable(False, False)
+
+    frame14 = CTkFrame(win3, width=180, height=530)
+    frame14.place(x=0, y=0)
+    frame3 = CTkLabel(win3, text="MENU", font=font2, width=900, height=25, fg_color="#a68a7b")
+    frame3.place(x=-5, y=0)
+
+    # Toggle Menu
+    def toggle():
+        frame4 = CTkFrame(win3, width=150, height=520)
+        frame4.place(x=0, y=0)
+
+        sales = CTkButton(frame4, text="SALES", font=font2, width=120, command=sale)
+        sales.place(x=13, y=40)
+
+        order = CTkButton(frame4, text="ORDER", font=font2, width=120, command=orders)
+        order.place(x=13, y=80)
+
+        emp = CTkButton(frame4, text="EMPLOYEE", font=font2, width=120, command=employee)
+        emp.place(x=13, y=120)
+
+        def logout():
+            win3.destroy()
+            login()
+
+        logout = CTkButton(frame4, text="LOG OUT", font=font2, width=120, command=logout)
+        logout.place(x=13, y=400)
+
+        def toggle_delete():
+            frame4.destroy()
+
+        close_menu = CTkButton(frame4, text=" X ", width=20, corner_radius=1, height=1, command=toggle_delete,
+                               fg_color="#725B4E")
+        close_menu.place(x=0, y=3)
+
+    toggle_icon = CTkButton(frame3, text="☰", bg_color="#a68a7b", fg_color="#a68a7b", width=10, corner_radius=1,
+                            height=0, command=toggle)
+    toggle_icon.place(x=6, y=1)
+
+    cursor7 = con.cursor()
+    cursor7.execute("SELECT Item_ID,Item_Type,Item_Name,Item_Price FROM Menu")
+    row = cursor7.fetchall()
+
+    table = CTkTable(win3, row=16, column=4, values=row, anchor="w")
+    table.pack(expand=False, fill="none")
+    table.place(x=190, y=30)
+    value1 = [['ID'], ['TYPE'], ['NAME'], ['PRICE']]
+    table.add_row(value1, 0)
+
+    type = StringVar()
+    name = StringVar()
+    price = IntVar()
+    id_ = IntVar()
+
+    CTkFrame(frame14, width=160, height=2, border_color="black", fg_color="#a68a7b").place(x=6, y=110)
+    CTkLabel(frame14, text="ITEM ID", font=font2, width=250, height=30, anchor="w").place(x=6, y=52)
+
+    id_entry = CTkEntry(frame14, width=235, border_width=0, font=font1, fg_color="#725B4E", text_color="#E8D1B3", textvariable=id_)
+    id_entry.place(x=0, y=80)
+
+    CTkFrame(frame14, width=160, height=2, border_color="black", fg_color="#a68a7b").place(x=6, y=200)
+    CTkLabel(frame14, text="ITEM TYPE", font=font2, width=250, height=30, anchor="w").place(x=6, y=140)
+
+    type_entry = CTkEntry(frame14, width=235, border_width=0, font=font1, fg_color="#725B4E", text_color="#E8D1B3", textvariable=type)
+    type_entry.place(x=0, y=170)
+
+    CTkFrame(frame14, width=160, height=2, border_color="black", fg_color="#a68a7b").place(x=6, y=290)
+    CTkLabel(frame14, text="ITEM NAME", font=font2, width=250, height=30, anchor="w").place(x=6, y=230)
+
+    name_entry = CTkEntry(frame14, width=235, border_width=0, font=font1, fg_color="#725B4E", text_color="#E8D1B3", textvariable=name)
+    name_entry.place(x=0, y=260)
+
+    CTkFrame(frame14, width=160, height=2, border_color="black", fg_color="#a68a7b").place(x=6, y=380)
+    CTkLabel(frame14, text="ITEM PRICE", font=font2, width=250, height=30, anchor="w").place(x=6, y=320)
+
+    price_entry = CTkEntry(frame14, width=235, border_width=0, font=font1, fg_color="#725B4E", text_color="#E8D1B3", textvariable=price)
+    price_entry.place(x=0, y=350)
+
+    def add_menu():
+        z = oct(price.get())
+        z2 = str(z)
+        z2 = z2.replace("0", "", 1)
+        z2 = z2.replace("o", "", 1)
+        z2 = int(z2)
+
+        cursor8 = con.cursor()
+        cursor8.execute(f"INSERT INTO Menu(Item_Type, Item_Name, Item_Price) VALUES('{type.get()}','{name.get()}', {z2} )")
+        cursor8.commit()
+
+        table.add_row(z2)
+
+
+    add = CTkButton(frame14, width=160, font=font1, fg_color="#725B4E", text_color="#E8D1B3", text="ADD TO MENU", command=add_menu)
+    add.place(x=4, y=410)
+
+    def delete_record():
+        x = oct(id_.get())
+        x2 = str(x)
+        x2 = x2.replace("0", "", 1)
+        x2 = x2.replace("o", "", 1)
+        x2 = int(x2)
+
+        cursor9 = con.cursor()
+        cursor9.execute(f"DELETE FROM Menu WHERE Item_Id={x2}")
+        cursor9.commit()
+
+        table.delete_row(x2)
+
+    id_delete = CTkButton(frame14, width=160, font=font1, fg_color="#725B4E", text_color="#E8D1B3", text="DELETE", command=delete_record)
+    id_delete.place(x=6, y=460)
+
+    cursor7.commit()
+
+    win3.mainloop()
+
+
+# Second Window (Welcome Admin)
+def admin():
+    win2 = CTk()
+    win2.geometry("800x500")
+    win2.title("Restaurant Management System")
+    win2.config(background="#6D5143")
+    win2.resizable(False, False)
+
+    frame2 = CTkFrame(win2, width=200, height=500)
+    frame2.place(x=0, y=0)
+
+    heading2 = CTkLabel(win2, text="ADMIN PORTAL", font=font2, text_color="#E8D1B3")
+    heading2.pack_configure(side=TOP)
+
+    sales = CTkButton(win2, text="SALES", font=font2, width=150, command=lambda : [win2.destroy(), sale()])
+    sales.place(x=20, y=30)
+
+    order = CTkButton(win2, text="ORDER", font=font2, width=150, command=lambda : [win2.destroy(), orders()])
+    order.place(x=20, y=75)
+
+    menus = CTkButton(win2, text="MENU", font=font2, width=150, command=lambda : [win2.destroy(), menu()])
+    menus.place(x=20, y=120)
+
+    emp = CTkButton(win2, text="EMPLOYEE", font=font2, width=150, command=lambda : [win2.destroy(), employee()])
+    emp.place(x=20, y=165)
+
+    logout = CTkButton(win2, text="LOG OUT", font=font2, width=150, command=lambda : [win2.destroy(), login()])
+    logout.place(x=20, y=400)
+
+    img = CTkImage(dark_image=Image.open("Welcome.png"), size=(600, 500))
+    CTkLabel(win2, image=img, text="").place(x=200, y=30)
+
+    win2.mainloop()
+
+
+# First Window (Login)
+def login():
+    win1 = CTk()
+    win1.title("Restaurant Management System")
+    win1.geometry("800x500")
+    win1.resizable(False, False)
+
+    heading = CTkLabel(win1, text="", font=font2, text_color="#E8D1B3", bg_color="#6D5143")
+    heading.pack_configure(side=TOP, fill=X)
+
+    frame1 = CTkFrame(win1, width=350, height=400, fg_color="#E8D1B3", bg_color="#6D5143")
+    frame1.place(x=400, y=70)
+
+    login_label = CTkLabel(win1, text="LOGIN", font=font3, text_color="#6D5143", bg_color="#E8D1B3")
+    login_label.place(x=540, y=130)
+
+    username = CTkEntry(frame1, width=235, border_width=0, font=font1, fg_color="#E8D1B3", text_color="#6D5143",
+                        placeholder_text="USERNAME")
+    username.place(x=60, y=120)
+
+    CTkFrame(frame1, width=235, height=2, border_color="#6D5143").place(x=65, y=150)
+
+    password = CTkEntry(frame1, width=235, border_width=0, font=font1, fg_color="#E8D1B3", text_color="#6D5143",
+                        placeholder_text="PASSWORD", show="*")
+    password.place(x=60, y=220)
+
+    def crypt():
+        if password.cget('show') == "*":
+            password.configure(show="")
+        else:
+            password.configure(show="*")
+
+    show_password = CTkButton(frame1, width=10, height=10, fg_color="transparent", text_color="#6D5143", text="View", command=crypt,
+                              hover_color="#E8D1B3")
+    show_password.place(x=260, y=220)
+
+    CTkFrame(frame1, width=235, height=2, border_color="#6D5143").place(x=65, y=250)
+
+    def login_check():
+        user = username.get()
+        word = password.get()
+        pair = (user, word)
+
+        user1 = 'SE-072'
+        word1 = 'hafsa'
+        pair1 = (user1, word1)
+
+        user2 = 'SE-074'
+        word2 = 'raafia'
+        pair2 = (user2, word2)
+
+        if pair == pair1 or pair == pair2:
+            win1.destroy()
+            admin()
+        else:
+            error_label = CTkLabel(win1,
+                                   text="*Either the username or the password was entered incorrectly.\nPlease try again.",
+                                   font=('Century Gothic', 10, "bold"),
+                                   text_color="dark red", bg_color="#E8D1B3")
+            error_label.place(x=439, y=345)
+
+    login_button = CTkButton(win1, text="LOGIN", font=font1, width=250, corner_radius=10,
+                             bg_color="#E8D1B3", command=login_check)
+    login_button.place(x=460, y=390)
+
+    img = CTkImage(dark_image=Image.open("imge2.png"), size=(375, 400))
+    CTkLabel(win1, image=img, text="").place(x=40, y=70)
+
+    win1.mainloop()
+
+
+login()
