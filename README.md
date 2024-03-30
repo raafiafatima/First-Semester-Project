@@ -1,4 +1,4 @@
-# GUI for a coffee shop admin 
+# Admin GUI for a coffee shop 
 <br>
 
 RESTAURANT MANAGEMENT SYSTEM
